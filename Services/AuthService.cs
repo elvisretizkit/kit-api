@@ -7,7 +7,7 @@ namespace kit_api.Services;
 
 public static class AuthService
 {
-    public static async Task<Auth> Login(Auth credentials)
+    /*public static async Task<Auth> Login(Auth credentials)
     {
         try
         {
@@ -20,5 +20,5 @@ public static class AuthService
         {
 
         }
-    }
+    }*/
 }
