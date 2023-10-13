@@ -24,7 +24,7 @@ namespace kit_api.Services
             return clienteResult;
         }
 
-        public async Task<List<Categorias>> ObtenerClientes()
+        public async Task<List<Clientes>> ObtenerClientes()
         {
             var result = await _connection.QueryAsync<Clientes>(
                 sql: "sp_ClienteConsultar",
@@ -62,7 +62,7 @@ namespace kit_api.Services
                 );
         }
 
-        public async Task ActualizarClientes(Clientes cliente)
+        public async Task ActualizarCliente(Clientes cliente)
         {
             await _connection.ExecuteAsync(
                 sql: "sp_ClientesInsertar",
@@ -89,7 +89,7 @@ namespace kit_api.Services
                 );
         }
 
-        public async Task EliminarCliente(string codigoCliente)
+        public async Task EliminarCliente(int codigoCliente)
         {
             await _connection.ExecuteAsync(
                 sql: "sp_ClientesBorrar",
