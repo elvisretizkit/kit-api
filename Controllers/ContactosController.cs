@@ -13,13 +13,13 @@ namespace kit_api.Controllers
     {
         readonly ContactoService service = new ContactoService();
 
-        // GET: api/<ContactosController>
+        // GET: api/<ContactosController>/
         [HttpGet]
-        public async Task<ActionResult<List<Contactos>>> Get(int codigoCliente, int codigoContacto, int activo)
+        public async Task<ActionResult<List<Contactos>>> Get([FromQuery] ContactosQueryParams parametros)
         {
             try
             {
-                List<Contactos> contactos = await service.ObtenerContactos(codigoCliente, codigoContacto, activo);
+                List<Contactos> contactos = await service.ObtenerContactos(parametros.codigoCliente, parametros.codigoContacto, parametros.activo);
                 return Ok(contactos);
             }
             catch (Exception e)
