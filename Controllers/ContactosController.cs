@@ -13,39 +13,6 @@ namespace kit_api.Controllers
     {
         readonly ContactoService service = new ContactoService();
 
-        // GET: api/<ContactosController>/
-        [HttpGet]
-        public async Task<ActionResult<List<Contactos>>> Get([FromQuery] ContactosQueryParams parametros)
-        {
-            try
-            {
-                List<Contactos> contactos = await service.ObtenerContactos(parametros.codigoCliente, parametros.codigoContacto, parametros.activo);
-                return Ok(contactos);
-            }
-            catch (Exception e)
-            {
-                Console.Write(e.Message);
-                return StatusCode(500);
-            }
-        }
-
-
-
-        // GET api/<ContactosController>/5
-        [HttpGet("{codigoCliente},{codigoContacto}")]
-        public async Task<ActionResult<Contactos>> Get(int codigoCliente, int codigoContacto)
-        {
-            try
-            {
-                var result = await service.ObtenerContacto(codigoCliente, codigoContacto,1);
-                return Ok(result);
-            }
-            catch (Exception e)
-            {
-                Console.Write(e.Message);
-                return StatusCode(500);
-            }
-        }
 
         // POST api/<ContactosController>
         [HttpPost]
@@ -64,12 +31,12 @@ namespace kit_api.Controllers
         }
 
         // PUT api/<ContactosController>/5
-        [HttpPut("{codigoCliente},{codigoContacto}")]
-        public async Task<ActionResult> Put(int codigoCliente, int codigoContacto, [FromBody] Contactos contacto)
+        [HttpPut]
+        public async Task<ActionResult> Put([FromQuery] ContactosQueryParams parametros, [FromBody] Contactos contacto)
         {
             try
             {
-                if (codigoCliente != contacto.Cliente & codigoContacto != contacto.Contacto)
+                if (parametros.codigoCliente != contacto.Cliente & parametros.codigoContacto != contacto.Contacto)
                 {
                     return BadRequest();
                 }
@@ -84,12 +51,12 @@ namespace kit_api.Controllers
         }
 
         // DELETE api/<ContactosController>/5
-        [HttpDelete("{codigoCliente},{codigoContacto}")]
-        public async Task<ActionResult> Delete(int codigoCliente, int codigoContacto)
+        [HttpDelete]
+        public async Task<ActionResult> Delete([FromQuery] ContactosQueryParams parametros)
         {
             try
             {
-                await service.EliminarContacto(codigoCliente, codigoContacto);
+                await service.EliminarContacto(parametros.codigoCliente, parametros.codigoContacto);
                 return NoContent();
             }
             catch (Exception e)

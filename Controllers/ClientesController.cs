@@ -9,6 +9,7 @@ namespace kit_api.Controllers
     public class ClientesController : ControllerBase
     {
         readonly GuardiaService serviceGuardia = new GuardiaService();
+        readonly ContactoService serviceContacto = new ContactoService();
         readonly ClienteService service = new ClienteService();
 
         // GET: api/<ClientesController>
@@ -45,7 +46,7 @@ namespace kit_api.Controllers
         }
 
 
-        // GET api/<ClientesController>
+        // GET api/<ClientesController>/Guardias
         [HttpGet("Guardias/{codigoCliente}")]
         public async Task<ActionResult<List<Guardias>>> GetGuardias(int codigoCliente)
         {
@@ -61,6 +62,22 @@ namespace kit_api.Controllers
             }
         }
 
+
+        // GET: api/<ClientesController>/Contactos
+        [HttpGet("Contactos")]
+        public async Task<ActionResult<List<Contactos>>> Get([FromQuery] ContactosQueryParams parametros)
+        {
+            try
+            {
+                List<Contactos> contactos = await serviceContacto.ObtenerContactos(parametros.codigoCliente, parametros.codigoContacto, parametros.activo);
+                return Ok(contactos);
+            }
+            catch (Exception e)
+            {
+                Console.Write(e.Message);
+                return StatusCode(500);
+            }
+        }
 
 
         // POST api/<ClientesController>
@@ -116,5 +133,6 @@ namespace kit_api.Controllers
                 return StatusCode(500);
             }
         }
+
     }
 }

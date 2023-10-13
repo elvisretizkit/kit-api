@@ -6,7 +6,6 @@ namespace kit_api.Models
     {
         [BindRequired]
         public int codigoCliente {  get; set; }
-        [BindRequired]
         public int codigoContacto { get; set; }
         public int activo { get; set; }
     }
