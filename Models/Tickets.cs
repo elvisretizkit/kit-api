@@ -11,8 +11,6 @@
         public int Prioridad { get; set; }
         public string Asesor { get; set; }
         public string Categoria { get; set; }
-        public float Tiempo { get; set; }
-        public string Descripcion { get; set; }
         public bool Facturable { get; set; }
         public DateTime FechaProgramado { get; set; }
     }
