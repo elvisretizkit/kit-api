@@ -62,7 +62,6 @@ namespace kit_api.Controllers
             }
         }
 
-
         // GET: api/<ClientesController>/Contactos
         [HttpGet("Contactos")]
         public async Task<ActionResult<List<Contactos>>> Get([FromQuery] ContactosQueryParams parametros)
@@ -78,6 +77,7 @@ namespace kit_api.Controllers
                 return StatusCode(500);
             }
         }
+
 
 
         // POST api/<ClientesController>

@@ -11,6 +11,7 @@ namespace kit_api.Controllers
     public class TicketsController : ControllerBase
     {
         readonly TicketService serviceTicket = new TicketService();
+        readonly TiempoService serviceTiempo = new TiempoService();
 
         [HttpGet("{codigoTicket}")]
         public async Task<ActionResult<Tickets>> Get(int codigoTicket)
@@ -27,6 +28,7 @@ namespace kit_api.Controllers
             }
         }
 
+        // POST: api/<TicketsController>
         [HttpPost]
         public async Task<ActionResult> Post([FromBody] Tickets ticket)
         {
@@ -43,6 +45,24 @@ namespace kit_api.Controllers
         }
 
 
+        // POST: api/<TicketsController>/Tiempos
+        [HttpPost("Tiempos")]
+        public async Task<ActionResult> Post([FromBody] Tiempos tiempo)
+        {
+            try
+            {
+                await serviceTiempo.InsertarTiempo(tiempo);
+                return NoContent();
+            }
+            catch (Exception e)
+            {
+                Console.Write(e.Message);
+                return StatusCode(500);
+            }
+        }
+
+
+
         // PUT api/<TicketsController>/5
         [HttpPut("{codigoTicket}")]
         public async Task<ActionResult> Put(int codigoTicket, [FromBody] Tickets ticket)
@@ -54,6 +74,23 @@ namespace kit_api.Controllers
                     return BadRequest();
                 }
                 await serviceTicket.ActualizarTicket(ticket);
+                return NoContent();
+            }
+            catch (Exception e)
+            {
+                Console.Write(e.Message);
+                return StatusCode(500);
+            }
+        }
+
+
+        // PUT api/<TicketsController>/Tiempos
+        [HttpPut("Tiempos")]
+        public async Task<ActionResult> Put(int codigoTicket, int codigoFolio,[FromBody] Tiempos tiempo)
+        {
+            try
+            {
+                await serviceTiempo.ActualizarTiempo(tiempo);
                 return NoContent();
             }
             catch (Exception e)
@@ -79,5 +116,23 @@ namespace kit_api.Controllers
                 return StatusCode(500);
             }
         }
+
+
+        // DELETE api/<TicketsController>/Tiempos/
+        [HttpDelete("Tiempos")]
+        public async Task<ActionResult> Delete([FromQuery] TiemposQueryParams parametros)
+        {
+            try
+            {
+                await serviceTiempo.EliminarTiempo(parametros.codigoTicket, parametros.codigoFolio);
+                return NoContent();
+            }
+            catch (Exception e)
+            {
+                Console.Write(e.Message);
+                return StatusCode(500);
+            }
+        }
+
     }
 }
