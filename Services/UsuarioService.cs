@@ -23,5 +23,24 @@ namespace kit_api.Services
             Usuarios usuarioResult = result.First();
             return usuarioResult;
         }
+
+        public async Task InsertarUsuario(Usuarios usuario)
+        {
+            await _connection.ExecuteAsync(
+            sql: "sp_WUsuariosInsertar",
+            param: new
+            {
+                @usuario = usuario.Usuario,
+                @nombre = usuario.Nombre,
+                @tipo = usuario.Tipo,
+                @cliente = usuario.Cliente,
+                @password = usuario.Password,
+                @asesor = usuario.Asesor,
+                @contacto = usuario.Contacto,
+                @activo = usuario.Activo
+            },
+            commandType: System.Data.CommandType.StoredProcedure
+            );
+        }
     }
 }

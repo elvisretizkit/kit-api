@@ -3,6 +3,7 @@ using kit_api.Security;
 using kit_api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.IdentityModel.Tokens.Jwt;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -14,24 +15,28 @@ namespace kit_api.Controllers
     {
         readonly UsuarioService usuarioService = new UsuarioService();
         private IManejadorJwt _Manejador;
-
-        public LoginController(IManejadorJwt manejador) {
+        private iManejadorEncripcion _handler;
+        public LoginController(IManejadorJwt manejador, iManejadorEncripcion manejadorEncripcion) {
 
             _Manejador = manejador;
+            _handler = manejadorEncripcion;
         }
+
+        
 
         // POST api/<LoginController>
         [AllowAnonymous]
         [HttpPost]
-        public async Task<ActionResult<string>> Post([FromBody] Credenciales credenciales)
+        public async Task<ActionResult<object>> Post([FromBody] Credenciales credenciales)
         {
             try
             {
-
+                credenciales.Password = _handler.Encriptar(credenciales.Password);
                 var result = await usuarioService.Login(credenciales.Usuario, credenciales.Password);
                 var token = _Manejador.GenerarToken(result.Usuario, result.Tipo);
+                var refreshToken = _Manejador.GenerarRefreshToken();
 
-                return token;
+                return new { token, refreshToken };
             }
             catch (Exception e)
             {
@@ -40,5 +45,21 @@ namespace kit_api.Controllers
             }
         }
 
+        [HttpPost("Refresh")]
+        public async Task<ActionResult<string>> PostRefresh([FromHeader(Name = "Authorization")] string refreshToken)
+        {
+            try
+            {
+                var manejadorToken = new JwtSecurityTokenHandler();
+                var tokenValidado = manejadorToken.ReadJwtToken(refreshToken);
+                string tipo = tokenValidado.Claims.First(c => c.Type == JwtRegisteredClaimNames.NameId).ToString();
+                return tipo;
+            }
+            catch (Exception e)
+            {
+                Console.Write(e.Message);
+                return StatusCode(500);
+            }
+        }
     }
 }
