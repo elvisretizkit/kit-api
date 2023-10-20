@@ -3,7 +3,9 @@ using kit_api.Security;
 using kit_api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Text;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -34,9 +36,11 @@ namespace kit_api.Controllers
                 credenciales.Password = _handler.Encriptar(credenciales.Password);
                 var result = await usuarioService.Login(credenciales.Usuario, credenciales.Password);
                 var token = _Manejador.GenerarToken(result.Usuario, result.Tipo);
-                var refreshToken = _Manejador.GenerarRefreshToken();
+                var refreshToken = _Manejador.GenerarRefreshToken(result.Usuario);
+                await usuarioService.InsertarRefreshToken(refreshToken);
 
-                return new { token, refreshToken };
+
+                return new { token, refreshToken = refreshToken.Token };
             }
             catch (Exception e)
             {
@@ -45,15 +49,54 @@ namespace kit_api.Controllers
             }
         }
 
+        [AllowAnonymous]
         [HttpPost("Refresh")]
-        public async Task<ActionResult<string>> PostRefresh([FromHeader(Name = "Authorization")] string refreshToken)
+        public async Task<ActionResult<object>> PostRefresh([FromBody] RefreshBodySchema schema)
         {
             try
             {
                 var manejadorToken = new JwtSecurityTokenHandler();
-                var tokenValidado = manejadorToken.ReadJwtToken(refreshToken);
-                string tipo = tokenValidado.Claims.First(c => c.Type == JwtRegisteredClaimNames.NameId).ToString();
-                return tipo;
+                var refresToken = await usuarioService.ObtenerRefreshToken(schema.RefresToken);
+                if (refresToken.Activo == false || refresToken.Expiracion <= DateTime.Now) { 
+                    return Unauthorized("if 1");
+                }
+
+                //Manejar mas adelante si el token ya esta usado
+
+                var accesTokenValidate = await manejadorToken.ValidateTokenAsync(schema.AccesToken,new TokenValidationParameters() {
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_Manejador.Configuration.GetSection("JWT:Key").Get<string>() ?? string.Empty))
+                });
+
+                if (accesTokenValidate.IsValid == false) {
+                    return Unauthorized("if 2");
+                }
+
+                refresToken.Usado = true;
+
+                //Implementar actualizacion de estado usado
+
+                var usuario = await usuarioService.ObtenerUsuario(refresToken.Usuario);
+                if (usuario.Activo == false) {
+                    return Unauthorized("if 3");
+                }
+
+                var result = await usuarioService.Login(usuario.Usuario, usuario.Password);
+                var token = _Manejador.GenerarToken(result.Usuario, result.Tipo);
+                var nuevoRefreshToken = _Manejador.GenerarRefreshToken(result.Usuario);
+                await usuarioService.InsertarRefreshToken(nuevoRefreshToken);
+                var refreshTokenString = nuevoRefreshToken.Token;
+
+
+                return new
+                {
+                    token,
+                    refresToken = refreshTokenString
+                };
+
+
             }
             catch (Exception e)
             {
