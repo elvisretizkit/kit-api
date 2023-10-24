@@ -33,9 +33,7 @@ namespace kit_api.Controllers
         {
             try
             {
-                Console.WriteLine("Password plano: " + credenciales.Password);
                 credenciales.Password = _handler.Encriptar(credenciales.Password);
-                Console.WriteLine("Password cifrado: " + credenciales.Password);
                 var result = await usuarioService.Login(credenciales.Usuario, credenciales.Password);
                 var token = _Manejador.GenerarToken(result.Usuario, result.Tipo);
                 var refreshToken = _Manejador.GenerarRefreshToken(result.Usuario);
@@ -63,13 +61,14 @@ namespace kit_api.Controllers
                     return Unauthorized("if 1");
                 }
 
-                //Manejar mas adelante si el token ya esta usado
+                //TODO:Manejar mas adelante si el token ya esta usado
 
                 var accesTokenValidate = await manejadorToken.ValidateTokenAsync(schema.AccesToken,new TokenValidationParameters() {
                     ValidateIssuer = false,
                     ValidateAudience = false,
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_Manejador.Configuration.GetSection("JWT:Key").Get<string>() ?? string.Empty))
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_Manejador.Configuration.GetSection("JWT:Key").Get<string>() ?? string.Empty)),
+                    ClockSkew = System.TimeSpan.Zero
                 });
 
                 if (accesTokenValidate.IsValid == false) {
@@ -78,7 +77,7 @@ namespace kit_api.Controllers
 
                 refresToken.Usado = true;
 
-                //Implementar actualizacion de estado usado
+                //TODO:Implementar actualizacion de estado usado
 
                 var usuario = await usuarioService.ObtenerUsuario(refresToken.Usuario);
                 if (usuario.Activo == false) {

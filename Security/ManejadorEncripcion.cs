@@ -35,7 +35,6 @@ namespace kit_api.Security
                             swEncrypt.Write(texto);
                         }
                         encrypted = msEncrypt.ToArray();
-                        Console.WriteLine("Texto cifrado: " + encrypted.ToString());
                     }
                 }
             }
