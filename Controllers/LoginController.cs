@@ -33,7 +33,9 @@ namespace kit_api.Controllers
         {
             try
             {
+                Console.WriteLine("Password plano: " + credenciales.Password);
                 credenciales.Password = _handler.Encriptar(credenciales.Password);
+                Console.WriteLine("Password cifrado: " + credenciales.Password);
                 var result = await usuarioService.Login(credenciales.Usuario, credenciales.Password);
                 var token = _Manejador.GenerarToken(result.Usuario, result.Tipo);
                 var refreshToken = _Manejador.GenerarRefreshToken(result.Usuario);
