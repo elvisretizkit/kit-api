@@ -28,7 +28,7 @@ namespace kit_api.Security
                     issuer: null,
                     audience: null,
                     claims,
-                    expires: DateTime.Now.AddMinutes(60),
+                    expires: DateTime.Now.AddMinutes(1),
                     signingCredentials: credentials
                 ) ;
 
