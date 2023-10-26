@@ -7,6 +7,6 @@ namespace kit_api.Models
         [BindRequired]
         public string AccesToken { get; set; }
         [BindRequired]
-        public string RefresToken { get; set; }
+        public string RefreshToken { get; set; }
     }
 }

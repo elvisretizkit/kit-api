@@ -3,11 +3,6 @@ using kit_api.Security;
 using kit_api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Text;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace kit_api.Controllers
 {
@@ -55,13 +50,16 @@ namespace kit_api.Controllers
         {
             try
             {
-                var manejadorToken = new JwtSecurityTokenHandler();
-                var refresToken = await usuarioService.ObtenerRefreshToken(schema.RefresToken);
+                //var manejadorToken = new JwtSecurityTokenHandler();
+                
+                var refresToken = await usuarioService.ObtenerRefreshToken(schema.RefreshToken);
                 if (refresToken.Activo == false || refresToken.Expiracion <= DateTime.Now) { 
-                    return Unauthorized("if 1");
+                    return Unauthorized();
                 }
+                
 
-                //TODO:Manejar mas adelante si el token ya esta usado
+                /*TODO:Manejar mas adelante si el token ya esta usado
+                  TODO:Manejar validacion accestoken
 
                 var accesTokenValidate = await manejadorToken.ValidateTokenAsync(schema.AccesToken,new TokenValidationParameters() {
                     ValidateIssuer = false,
@@ -72,24 +70,26 @@ namespace kit_api.Controllers
                 });
 
                 if (accesTokenValidate.IsValid == false) {
-                    return Unauthorized("if 2");
+                    return Unauthorized();
                 }
+                */
 
                 refresToken.Usado = true;
 
                 //TODO:Implementar actualizacion de estado usado
-
+                
                 var usuario = await usuarioService.ObtenerUsuario(refresToken.Usuario);
                 if (usuario.Activo == false) {
-                    return Unauthorized("if 3");
+                    return Unauthorized();
                 }
 
-                var result = await usuarioService.Login(usuario.Usuario, usuario.Password);
-                var token = _Manejador.GenerarToken(result.Usuario, result.Tipo);
-                var nuevoRefreshToken = _Manejador.GenerarRefreshToken(result.Usuario);
+                //TODO:Revisar si Login es necesario
+                //var result = await usuarioService.Login(usuario.Usuario, usuario.Password);
+                
+                var token = _Manejador.GenerarToken(usuario.Usuario, usuario.Tipo);
+                var nuevoRefreshToken = _Manejador.GenerarRefreshToken(usuario.Usuario);
                 await usuarioService.InsertarRefreshToken(nuevoRefreshToken);
                 var refreshTokenString = nuevoRefreshToken.Token;
-
 
                 return new
                 {

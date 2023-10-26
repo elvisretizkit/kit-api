@@ -2,7 +2,6 @@
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Security.Cryptography.Xml;
 using System.Text;
 
 namespace kit_api.Security
@@ -28,7 +27,7 @@ namespace kit_api.Security
                     issuer: null,
                     audience: null,
                     claims,
-                    expires: DateTime.Now.AddMinutes(1),
+                    expires: DateTime.Now.AddMinutes(60),
                     signingCredentials: credentials
                 ) ;
 
